@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  migrate:
+    build:
+      context: ./todolist/
+    image: sergeipopov/hw34
+    command: ./todolist/manage.py migrate
+    # tty: true
+    depends_on:
+      pg:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ./todolist/
+    image: sergeipopov/hw34
+    command: ./todolist/manage.py runserver 0.0.0.0:8000
+    tty: true
+    # expose:
+    #   - 8000
+    ports: 
+      - "8000:8000"
+    # volumes:
+    #   - .:/home/app/
+    depends_on:
+      - pg
+      - migrate
+
+  pg:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qazxswedc123
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: pg
+    restart: always
+    ports:
+    - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:latest
+    ports:
+      # - "8000:8000"
+      - "3000:3000"
+      - "1337:80"
+    volumes:
+      - ./todolist/django_static/:/usr/share/nginx/html/django_static/
+      - ./todolist/django_media/:/usr/share/nginx/html/django_media/
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # - frontend:/usr/share/nginx/html/
+    restart: always
+    depends_on:
+      - pg
+      - api
+      # - frontend
+
+volumes:
+  postgres_data:
+
+  
