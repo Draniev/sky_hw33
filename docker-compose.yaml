@@ -3,7 +3,7 @@ version: '3.8'
 services:
   migrate:
     build:
-      context: ./todolist/
+      context: .
     image: sergeipopov/hw34
     command: ./todolist/manage.py migrate
     # tty: true
@@ -13,7 +13,7 @@ services:
 
   api:
     build:
-      context: ./todolist/
+      context: .
     image: sergeipopov/hw34
     command: ./todolist/manage.py runserver 0.0.0.0:8000
     tty: true
