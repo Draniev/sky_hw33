@@ -19,9 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = Path(BASE_DIR.parent, '.env', 'data.env')
 
 is_loaded = load_dotenv(ENV_FILE)
-if not is_loaded:
-    print(ENV_FILE)
-    raise FileNotFoundError(f'ENV File did not found: {ENV_FILE}')
+# if not is_loaded:
+#     print(ENV_FILE)
+#     raise FileNotFoundError(f'ENV File did not found: {ENV_FILE}')
 
 DB_NAME = os.environ.get('DB_NAME')
 DB_HOST = os.environ.get('DB_HOST')
