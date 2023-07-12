@@ -1,0 +1,57 @@
+name: build and deploy
+on:
+  push:
+    branches: ["main"]
+      
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone code
+        uses: actions/checkout@v3
+      - name: docker build
+        run: docker build -t sergeipopov/hw34:$GITHUB_RUN_ID .
+      - name: docker login
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: docker push
+        run: docker push sergeipopov/hw34:$GITHUB_RUN_ID
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    env:
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      SECRET: ${{ secrets.DB_SECRET }}
+    steps:
+      - name: clone code
+        uses: actions/checkout@v3
+      - name: render configs
+        run: |
+          mkdir deploy
+          cat docker-compose-ci.yaml | envsubst > deploy/docker-compose.yaml
+      - name: clone files to vps
+        uses: appleboy/scp-action@master
+        with: 
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_LOGIN }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "deploy/docker-compose.yaml"
+          target: "hw34_docker"
+          strip_components: 1
+      - name: run docker compose
+        uses: appleboy/ssh-action@master
+        with: 
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_LOGIN }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd hw34_docker
+            docker compose up -d
+          
+
+
