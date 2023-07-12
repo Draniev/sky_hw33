@@ -5,6 +5,14 @@ services:
     build:
       context: ./todolist/
     image: sergeipopov/hw34
+    environment:
+      DB_NAME: $DB_NAME
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_HOST: $DB_HOST
+      DB_PORT: 5432
+      SECRET: $SECRET  
+      DEBUR: True
     command: ./todolist/manage.py migrate
     # tty: true
     depends_on:
@@ -15,14 +23,18 @@ services:
     build:
       context: ./todolist/
     image: sergeipopov/hw34
-    command: ./todolist/manage.py runserver 0.0.0.0:8000
+    environment:
+      DB_NAME: $DB_NAME
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_HOST: $DB_HOST
+      DB_PORT: 5432
+      SECRET: $SECRET  
+      DEBUR: True
     tty: true
-    # expose:
-    #   - 8000
     ports: 
       - "8000:8000"
-    # volumes:
-    #   - .:/home/app/
+    command: ./todolist/manage.py runserver 0.0.0.0:8000
     depends_on:
       - pg
       - migrate
@@ -32,10 +44,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qazxswedc123
-      POSTGRES_DB: postgres
-      POSTGRES_HOST: pg
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_HOST: $DB_HOST
     restart: always
     ports:
     - "5432:5432"
@@ -57,7 +69,7 @@ services:
     image: nginx:latest
     ports:
       # - "8000:8000"
-      - "3000:3000"
+      # - "3000:3000"
       - "1337:80"
     volumes:
       - ./todolist/django_static/:/usr/share/nginx/html/django_static/
