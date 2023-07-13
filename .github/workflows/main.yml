@@ -25,7 +25,7 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_HOST: ${{ secrets.DB_HOST }}
       SECRET: ${{ secrets.SECRET }}
-      IMAGE_TAG: $GITHUB_RUN_ID
+      IMAGE_TAG: ${{ github.run_id }}
     steps:
       - name: clone code
         uses: actions/checkout@v3
