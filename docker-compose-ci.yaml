@@ -14,7 +14,7 @@ services:
       SECRET: $SECRET  
       DEBUR: True
     command: ./todolist/manage.py migrate
-    # tty: true
+    tty: true
     depends_on:
       pg:
         condition: service_healthy
