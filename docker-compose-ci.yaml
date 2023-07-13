@@ -13,7 +13,7 @@ services:
       DB_PORT: 5432
       SECRET: $SECRET  
       DEBUR: True
-    command: ./todolist/manage.py migrate
+    command: python /todolist/manage.py migrate
     tty: true
     depends_on:
       pg:
@@ -34,7 +34,7 @@ services:
     tty: true
     ports: 
       - "8000:8000"
-    command: ./todolist/manage.py runserver 0.0.0.0:8000
+    command: python /todolist/manage.py runserver 0.0.0.0:8000
     depends_on:
       - pg
       - migrate
