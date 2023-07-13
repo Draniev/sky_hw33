@@ -24,7 +24,8 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_HOST: ${{ secrets.DB_HOST }}
-      SECRET: ${{ secrets.DB_SECRET }}
+      SECRET: ${{ secrets.SECRET }}
+      IMAGE_TAG: $GITHUB_RUN_ID
     steps:
       - name: clone code
         uses: actions/checkout@v3
@@ -39,7 +40,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_LOGIN }}
           key: ${{ secrets.SSH_KEY }}
-          source: "deploy/docker-compose.yaml"
+          source: "deploy/docker-compose.yaml,nginx.conf"
           target: "hw34_docker"
           strip_components: 1
       - name: run docker compose
