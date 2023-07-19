@@ -12,7 +12,7 @@ services:
       DB_HOST: $DB_HOST
       DB_PORT: 5432
       SECRET: $SECRET  
-      DEBUR: True
+      DEBUG: True
     command: ./todolist/manage.py migrate
     # tty: true
     depends_on:
@@ -30,7 +30,7 @@ services:
       DB_HOST: $DB_HOST
       DB_PORT: 5432
       SECRET: $SECRET  
-      DEBUR: True
+      DEBUG: True
     tty: true
     ports: 
       - "8000:8000"
