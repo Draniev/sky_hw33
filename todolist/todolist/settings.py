@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-from dotenv import load_dotenv
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,8 @@ ENV_FILE = Path(BASE_DIR.parent, '.env', 'data.env')
 
 is_loaded = load_dotenv(ENV_FILE)
 if not is_loaded:
-    print(f'Файл с переменными среды {ENV_FILE} не найден, загружаю из имеющихся...')
+    print(
+        f'Файл с переменными среды {ENV_FILE} не найден, загружаю из имеющихся...')
 #     raise FileNotFoundError(f'ENV File did not found: {ENV_FILE}')
 
 DB_NAME = os.environ.get('DB_NAME')
@@ -40,9 +42,10 @@ SECRET_KEY = SECRET
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = IS_DEBUG
+# DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+APPEND_SLASH = False
 
 # Application definition
 
