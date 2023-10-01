@@ -45,7 +45,7 @@ DEBUG = IS_DEBUG
 # DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-APPEND_SLASH = False
+# APPEND_SLASH = False
 
 # Application definition
 
