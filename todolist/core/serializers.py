@@ -52,3 +52,10 @@ class UserLoginSerializer(serializers.Serializer):
                 'Incorrect Username or Password!')
         attrs['user'] = user
         return attrs
+
+
+class UserRetrUpdSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
