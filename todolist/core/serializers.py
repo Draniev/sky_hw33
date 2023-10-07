@@ -59,3 +59,19 @@ class UserRetrUpdSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email']
+
+
+class UpdatePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=128, write_only=True)
+    new_password = serializers.CharField(max_length=128, write_only=True)
+
+    def validate(self, attrs):
+        old_password = attrs.get('old_password')
+        new_password = attrs.get('new_password')
+
+        user = self.context['request'].user
+        if not user.check_password(old_password):
+            raise serializers.ValidationError("Old password is incorrect.")
+
+        validate_password(new_password)
+        return attrs
