@@ -34,7 +34,7 @@ class LoginUser(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@method_decorator(ensure_csrf_cookie, name='get')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class ProfileUser(RetrieveUpdateDestroyAPIView):
     # queryset = User.objects.all()
     serializer_class = UserRetrUpdSerializer
@@ -49,6 +49,7 @@ class ProfileUser(RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class UpdatePassword(UpdateAPIView):
     # queryset = User.objects.all()
     serializer_class = UpdatePasswordSerializer
