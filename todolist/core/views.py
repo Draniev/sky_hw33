@@ -35,6 +35,10 @@ class LoginUser(APIView):
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='get')
+@method_decorator(ensure_csrf_cookie, name='put')
+@method_decorator(ensure_csrf_cookie, name='post')
+@method_decorator(ensure_csrf_cookie, name='delete')
 class ProfileUser(RetrieveUpdateDestroyAPIView):
     # queryset = User.objects.all()
     serializer_class = UserRetrUpdSerializer
@@ -49,6 +53,8 @@ class ProfileUser(RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@method_decorator(ensure_csrf_cookie, name='put')
+@method_decorator(ensure_csrf_cookie, name='post')
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class UpdatePassword(UpdateAPIView):
     # queryset = User.objects.all()
