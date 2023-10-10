@@ -57,8 +57,23 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'social_django',
     'core',
 ]
+
+
+# Настройка для ОAUTH2 приложения, см
+# https://python-social-auth.readthedocs.io/en/latest/configuration/django.html
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+SOCIAL_AUTH_VK_OAUTH2_KEY = os.getenv('VK_APP_ID')
+print(SOCIAL_AUTH_VK_OAUTH2_KEY)
+SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv('VK_APP_KEY')
+print(SOCIAL_AUTH_VK_OAUTH2_SECRET)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -153,5 +168,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "django_media")
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 AUTH_USER_MODEL = 'core.User'
