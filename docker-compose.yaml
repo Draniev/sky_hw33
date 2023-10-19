@@ -26,6 +26,7 @@ services:
       - migrate
 
   pg:
+    platform: linux/x86_64
     image: postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -44,6 +45,7 @@ services:
       retries: 5
 
   frontend:
+    platform: linux/x86_64
     image: sergeipopov/hw34_front:latest
     ports:
       - "3000:80"
