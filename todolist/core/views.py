@@ -2,7 +2,7 @@ from core.serializers import (UpdatePasswordSerializer, UserCreateSerializer,
                               UserLoginSerializer, UserRetrUpdSerializer)
 from django.contrib.auth import get_user_model, login, logout
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.generics import (CreateAPIView,
                                      RetrieveUpdateDestroyAPIView,
@@ -14,11 +14,15 @@ from rest_framework.views import APIView
 User = get_user_model()
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class CreateUser(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginUser(APIView):
     def post(self, request):
 
@@ -34,11 +38,12 @@ class LoginUser(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# @method_decorator(ensure_csrf_cookie, name='get')
+# @method_decorator(ensure_csrf_cookie, name='put')
+# @method_decorator(ensure_csrf_cookie, name='patch')
+# @method_decorator(ensure_csrf_cookie, name='delete')
+@method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-@method_decorator(ensure_csrf_cookie, name='get')
-@method_decorator(ensure_csrf_cookie, name='put')
-@method_decorator(ensure_csrf_cookie, name='patch')
-@method_decorator(ensure_csrf_cookie, name='delete')
 class ProfileUser(RetrieveUpdateDestroyAPIView):
     # queryset = User.objects.all()
     serializer_class = UserRetrUpdSerializer
@@ -53,9 +58,9 @@ class ProfileUser(RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+# @method_decorator(ensure_csrf_cookie, name='put')
+# @method_decorator(ensure_csrf_cookie, name='patch')
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-@method_decorator(ensure_csrf_cookie, name='put')
-@method_decorator(ensure_csrf_cookie, name='patch')
 class UpdatePassword(UpdateAPIView):
     # queryset = User.objects.all()
     serializer_class = UpdatePasswordSerializer
