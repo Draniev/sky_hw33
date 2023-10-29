@@ -6,6 +6,8 @@ services:
       context: .
     # image: sergeipopov/hw34
     command: ./todolist/manage.py migrate
+    volumes:
+      - .:/home/app/
     # tty: true
     depends_on:
       pg:
