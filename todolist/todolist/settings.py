@@ -59,9 +59,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'social_django',
     'core',
+    'goals',
 ]
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
+}
 # Настройка для ОAUTH2 приложения, см
 # https://python-social-auth.readthedocs.io/en/latest/configuration/django.html
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
@@ -70,9 +74,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 SOCIAL_AUTH_VK_OAUTH2_KEY = os.getenv('VK_APP_ID')
-print(SOCIAL_AUTH_VK_OAUTH2_KEY)
 SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv('VK_APP_KEY')
-print(SOCIAL_AUTH_VK_OAUTH2_SECRET)
 
 
 MIDDLEWARE = [
@@ -147,11 +149,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -168,6 +167,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "django_media")
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 AUTH_USER_MODEL = 'core.User'

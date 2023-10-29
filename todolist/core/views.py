@@ -14,16 +14,13 @@ from rest_framework.views import APIView
 User = get_user_model()
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class CreateUser(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginUser(APIView):
+    # @method_decorator(ensure_csrf_cookie)
     def post(self, request):
 
         serializer = UserLoginSerializer(
@@ -38,11 +35,7 @@ class LoginUser(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @method_decorator(ensure_csrf_cookie, name='get')
-# @method_decorator(ensure_csrf_cookie, name='put')
-# @method_decorator(ensure_csrf_cookie, name='patch')
-# @method_decorator(ensure_csrf_cookie, name='delete')
-@method_decorator(csrf_exempt, name='dispatch')
+# @method_decorator(csrf_exempt, name='patch')
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class ProfileUser(RetrieveUpdateDestroyAPIView):
     # queryset = User.objects.all()
@@ -53,6 +46,7 @@ class ProfileUser(RetrieveUpdateDestroyAPIView):
         # Return the currently authenticated user
         return self.request.user
 
+    @ensure_csrf_cookie
     def delete(self, request, *args, **kwargs):
         logout(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
