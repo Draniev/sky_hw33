@@ -1,11 +1,12 @@
-from goals.models import GoalCategory
-from goals.serializers import GoalCreateSerializer, GoalCategorySerializer
-from rest_framework import permissions
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework import filters
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from goals.models import Goal, GoalCategory
+from goals.serializers import (GoalCategoryCreateSerializer,
+                               GoalCategorySerializer, GoalCreateSerializer)
+from rest_framework import filters, permissions
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     RetrieveUpdateDestroyAPIView)
+from rest_framework.pagination import LimitOffsetPagination
 
 
 # @method_decorator(csrf_exempt, name='post')
@@ -13,7 +14,7 @@ from django.utils.decorators import method_decorator
 class GoalCategoryCreateView(CreateAPIView):
     model = GoalCategory
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = GoalCreateSerializer
+    serializer_class = GoalCategoryCreateSerializer
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -49,3 +50,10 @@ class GoalCategoryView(RetrieveUpdateDestroyAPIView):
         instance.is_deleted = True
         instance.save()
         return instance
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GoalCreateView(CreateAPIView):
+    model = Goal
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = GoalCreateSerializer
