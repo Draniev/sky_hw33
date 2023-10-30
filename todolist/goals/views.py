@@ -1,9 +1,10 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from goals.models import Goal, GoalCategory
+from goals.models import Goal, GoalCategory, GoalComment
 from goals.serializers import (GoalCategoryCreateSerializer,
                                GoalCategorySerializer, GoalCreateSerializer,
-                               GoalSerializer)
+                               GoalSerializer, GoalCommentSerializer,
+                               GoalCommentCreateSerializer)
 from goals.filters import GoalDateFilter
 from rest_framework import filters, permissions
 from rest_framework.generics import (CreateAPIView, ListAPIView,
@@ -12,7 +13,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-# @method_decorator(csrf_exempt, name='post')
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GoalCategoryCreateView(CreateAPIView):
     model = GoalCategory
@@ -97,9 +97,49 @@ class GoalView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Goal.objects.filter(user=self.request.user)
+        return Goal.objects.filter(
+            user=self.request.user
+        )
 
     def perform_destroy(self, instance):
         instance.status = 4
         instance.save()
         return instance
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GoalCommentCreateView(CreateAPIView):
+    model = GoalComment
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = GoalCommentCreateSerializer
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GoalCommentListView(ListAPIView):
+    model = GoalComment
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = GoalCommentSerializer
+    pagination_class = LimitOffsetPagination
+    filter_backends = [
+        filters.OrderingFilter,
+    ]
+    ordering_fields = ["created"]
+    ordering = ["text"]
+
+
+    def get_queryset(self):
+        return GoalComment.objects.filter(
+            user=self.request.user
+        )
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GoalCommentView(RetrieveUpdateDestroyAPIView):
+    model = GoalComment
+    serializer_class = GoalCommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return GoalComment.objects.filter(
+            user=self.request.user
+        )
