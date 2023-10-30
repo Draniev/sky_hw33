@@ -5,6 +5,7 @@ charset-normalizer==3.3.0
 cryptography==41.0.4
 defusedxml==0.8.0rc2
 Django==4.2.6
+django-filter==23.3
 djangorestframework==3.14.0
 idna==3.4
 oauthlib==3.2.2
