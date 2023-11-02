@@ -1,16 +1,25 @@
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from goals.models import Goal, GoalCategory, GoalComment
-from goals.serializers import (GoalCategoryCreateSerializer,
-                               GoalCategorySerializer, GoalCreateSerializer,
-                               GoalSerializer, GoalCommentSerializer,
-                               GoalCommentCreateSerializer)
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django_filters.rest_framework import DjangoFilterBackend
 from goals.filters import GoalDateFilter
+from goals.models import Board, Goal, GoalCategory, GoalComment
+from goals.serializers import (BoardCreateSerializer,
+                               GoalCategoryCreateSerializer,
+                               GoalCategorySerializer,
+                               GoalCommentCreateSerializer,
+                               GoalCommentSerializer, GoalCreateSerializer,
+                               GoalSerializer)
 from rest_framework import filters, permissions
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      RetrieveUpdateDestroyAPIView)
 from rest_framework.pagination import LimitOffsetPagination
-from django_filters.rest_framework import DjangoFilterBackend
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class BoardCreateView(CreateAPIView):
+    model = Board
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = BoardCreateSerializer
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -125,7 +134,6 @@ class GoalCommentListView(ListAPIView):
     ]
     ordering_fields = ["created"]
     ordering = ["text"]
-
 
     def get_queryset(self):
         return GoalComment.objects.filter(
