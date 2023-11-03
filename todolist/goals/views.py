@@ -1,14 +1,16 @@
+from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import DjangoFilterBackend
 from goals.filters import GoalDateFilter
 from goals.models import Board, Goal, GoalCategory, GoalComment
+from goals.permissions import BoardPermissions
 from goals.serializers import (BoardCreateSerializer,
                                GoalCategoryCreateSerializer,
                                GoalCategorySerializer,
                                GoalCommentCreateSerializer,
                                GoalCommentSerializer, GoalCreateSerializer,
-                               GoalSerializer)
+                               GoalSerializer, BoardSerializer, BoardListSerializer)
 from rest_framework import filters, permissions
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      RetrieveUpdateDestroyAPIView)
@@ -20,6 +22,49 @@ class BoardCreateView(CreateAPIView):
     model = Board
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = BoardCreateSerializer
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class BoardListView(ListAPIView):
+    model = Board
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = BoardListSerializer
+    pagination_class = LimitOffsetPagination
+    filter_backends = [
+        filters.OrderingFilter,
+        filters.SearchFilter,
+    ]
+    ordering_fields = ["title", "created"]
+    ordering = ["title"]
+    search_fields = ["title"]
+
+    def get_queryset(self):
+        return Board.objects.filter(
+            participants__user=self.request.user, is_deleted=False
+        )
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class BoardView(RetrieveUpdateDestroyAPIView):
+    model = Board
+    permission_classes = [permissions.IsAuthenticated, BoardPermissions]
+    serializer_class = BoardSerializer
+
+    def get_queryset(self):
+        # Обратите внимание на фильтрацию – она идет через participants
+        return Board.objects.filter(participants__user=self.request.user, is_deleted=False)
+
+    def perform_destroy(self, instance: Board):
+        # При удалении доски помечаем ее как is_deleted,
+        # «удаляем» категории, обновляем статус целей
+        with transaction.atomic():
+            instance.is_deleted = True
+            instance.save()
+            instance.categories.update(is_deleted=True)
+            Goal.objects.filter(category__board=instance).update(
+                status=Goal.Status.archived
+            )
+        return instance
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
