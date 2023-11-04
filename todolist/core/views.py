@@ -2,7 +2,7 @@ from core.serializers import (UpdatePasswordSerializer, UserCreateSerializer,
                               UserLoginSerializer, UserRetrUpdSerializer)
 from django.contrib.auth import get_user_model, login, logout
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.generics import (CreateAPIView,
                                      RetrieveUpdateDestroyAPIView,
@@ -46,7 +46,7 @@ class ProfileUser(RetrieveUpdateDestroyAPIView):
         # Return the currently authenticated user
         return self.request.user
 
-    @ensure_csrf_cookie
+    # @ensure_csrf_cookie
     def delete(self, request, *args, **kwargs):
         logout(request)
         return Response(status=status.HTTP_204_NO_CONTENT)

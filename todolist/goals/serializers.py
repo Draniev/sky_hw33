@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models.query import transaction
 from rest_framework import serializers
 from goals.models import GoalCategory, Goal, GoalComment, Board, BoardParticipant
 # from core.models import User
@@ -40,6 +41,15 @@ class GoalCreateSerializer(serializers.ModelSerializer):
         if value.user != self.context["request"].user:
             raise serializers.ValidationError("not owner of category")
 
+        return value
+
+    def validate_board(self, value):
+        # Check if the board with the provided ID exists and is valid
+        try:
+            board = Board.objects.get(pk=value)
+        except Board.DoesNotExist:
+            raise serializers.ValidationError("Board does not exist.")
+        # You can add more custom validation here if needed.
         return value
 
 
