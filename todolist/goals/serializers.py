@@ -16,6 +16,15 @@ class GoalCategoryCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "created", "updated", "user")
         fields = "__all__"
 
+    def validate_board(self, value):
+        # Check if the board with the provided ID exists and is valid
+        try:
+            board = Board.objects.get(pk=value)
+        except Board.DoesNotExist:
+            raise serializers.ValidationError("Board does not exist.")
+        # You can add more custom validation here if needed.
+        return value
+
 
 class GoalCategorySerializer(serializers.ModelSerializer):
     user = UserRetrUpdSerializer(read_only=True)
@@ -38,18 +47,15 @@ class GoalCreateSerializer(serializers.ModelSerializer):
         if value.is_deleted:
             raise serializers.ValidationError("not allowed in deleted category")
 
-        if value.user != self.context["request"].user:
-            raise serializers.ValidationError("not owner of category")
+        if not BoardParticipant.objects.filter(
+                user=self.context["request"].user, board=value.board,
+                role__in=[
+                    BoardParticipant.Role.owner,
+                    BoardParticipant.Role.writer,
+                ]
+                ).exists():
+            raise serializers.ValidationError("not owner or writer of category")
 
-        return value
-
-    def validate_board(self, value):
-        # Check if the board with the provided ID exists and is valid
-        try:
-            board = Board.objects.get(pk=value)
-        except Board.DoesNotExist:
-            raise serializers.ValidationError("Board does not exist.")
-        # You can add more custom validation here if needed.
         return value
 
 
@@ -66,8 +72,14 @@ class GoalSerializer(serializers.ModelSerializer):
         if value.is_deleted:
             raise serializers.ValidationError("not allowed in deleted category")
 
-        if value.user != self.context["request"].user:
-            raise serializers.ValidationError("not owner of category")
+        if not BoardParticipant.objects.filter(
+                user=self.context["request"].user, board=value.board,
+                role__in=[
+                    BoardParticipant.Role.owner,
+                    BoardParticipant.Role.writer,
+                ]
+                ).exists():
+            raise serializers.ValidationError("not owner or writer of category")
 
         return value
 
