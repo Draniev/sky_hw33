@@ -48,7 +48,7 @@ services:
 
   frontend:
     platform: linux/x86_64
-    image: sergeipopov/hw34_front:latest
+    image: sermalenk/skypro-front:lesson-37
     ports:
       - "3000:80"
     # volumes:
