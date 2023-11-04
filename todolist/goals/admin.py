@@ -1,5 +1,21 @@
 from django.contrib import admin
-from goals.models import GoalCategory, Goal
+from goals.models import GoalCategory, Goal, Board, BoardParticipant
+
+
+class BoardParticipantInline(admin.TabularInline):
+    model = BoardParticipant
+    extra = 1  # Number of empty forms to display for adding new members
+
+
+@admin.register(Board)
+class BoardAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_deleted')
+    inlines = [BoardParticipantInline]
+
+
+@admin.register(BoardParticipant)
+class BoardParticipantAdmin(admin.ModelAdmin):
+    list_display = ('board', 'user', 'role')
 
 
 class GoalCategoryAdmin(admin.ModelAdmin):

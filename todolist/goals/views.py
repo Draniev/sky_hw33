@@ -1,10 +1,11 @@
+from django.db.models import Q
 from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import DjangoFilterBackend
 from goals.filters import GoalDateFilter
-from goals.models import Board, Goal, GoalCategory, GoalComment
-from goals.permissions import BoardPermissions
+from goals.models import Board, BoardParticipant, Goal, GoalCategory, GoalComment
+from goals.permissions import BoardPermissions, CategoryPermissions, CategoryCreatePermission
 from goals.serializers import (BoardCreateSerializer,
                                GoalCategoryCreateSerializer,
                                GoalCategorySerializer,
@@ -70,7 +71,7 @@ class BoardView(RetrieveUpdateDestroyAPIView):
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GoalCategoryCreateView(CreateAPIView):
     model = GoalCategory
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CategoryCreatePermission]
     serializer_class = GoalCategoryCreateSerializer
 
 
@@ -85,12 +86,15 @@ class GoalCategoryListView(ListAPIView):
         filters.SearchFilter,
     ]
     ordering_fields = ["title", "created"]
-    ordering = ["title"]
-    search_fields = ["title"]
+    ordering = ["title", "board"]
+    search_fields = ["title", "board"]
 
     def get_queryset(self):
         return GoalCategory.objects.filter(
-            user=self.request.user, is_deleted=False
+            Q(user=self.request.user, is_deleted=False) |
+            # Категории, у которых доска, в которой пользователь состоит
+            Q(board__in=BoardParticipant.objects.filter(user=self.request.user).values('board'),
+              is_deleted=False)
         )
 
 
@@ -98,10 +102,15 @@ class GoalCategoryListView(ListAPIView):
 class GoalCategoryView(RetrieveUpdateDestroyAPIView):
     model = GoalCategory
     serializer_class = GoalCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CategoryPermissions]
 
     def get_queryset(self):
-        return GoalCategory.objects.filter(user=self.request.user, is_deleted=False)
+        return GoalCategory.objects.filter(
+            Q(user=self.request.user, is_deleted=False) |
+            # Категории, у которых доска, в которой пользователь состоит
+            Q(board__in=BoardParticipant.objects.filter(user=self.request.user).values('board'),
+              is_deleted=False)
+        )
 
     def perform_destroy(self, instance):
         # Update the status of associated Goal objects to 4 (archived)
