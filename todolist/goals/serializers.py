@@ -92,6 +92,21 @@ class GoalCommentCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "created", "updated", "user")
         fields = "__all__"
 
+    def validate_goal(self, value):
+        if value.status == Goal.Status.archived:
+            raise serializers.ValidationError("not allowed in deleted goal")
+
+        if not BoardParticipant.objects.filter(
+                user=self.context["request"].user, board=value.category.board,
+                role__in=[
+                    BoardParticipant.Role.owner,
+                    BoardParticipant.Role.writer,
+                ]
+                ).exists():
+            raise serializers.ValidationError("not owner or writer on this goal")
+
+        return value
+
 
 class GoalCommentSerializer(serializers.ModelSerializer):
     user = UserRetrUpdSerializer(read_only=True)

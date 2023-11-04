@@ -5,7 +5,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import DjangoFilterBackend
 from goals.filters import GoalDateFilter
 from goals.models import Board, BoardParticipant, Goal, GoalCategory, GoalComment
-from goals.permissions import BoardPermissions, CategoryPermissions, CategoryCreatePermission
+from goals.permissions import BoardPermissions, CategoryPermissions, CategoryCreatePermission, CommentCreatePermission, CommentPermissions
 from goals.serializers import (BoardCreateSerializer,
                                GoalCategoryCreateSerializer,
                                GoalCategorySerializer,
@@ -148,9 +148,14 @@ class GoalListView(ListAPIView):
     search_fields = ["title"]
 
     def get_queryset(self):
+        user_boards = BoardParticipant.objects.filter(user=self.request.user).values('board')
+
         return Goal.objects.filter(
-            user=self.request.user
-        )
+            Q(user=self.request.user, status__in=[1, 2, 3]) |
+            # Цели, состоящие в досках к которым есть доступ
+            Q(category__in=GoalCategory.objects.filter(board__in=user_boards),
+              status__in=[1, 2, 3])
+            )
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -160,9 +165,14 @@ class GoalView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        user_boards = BoardParticipant.objects.filter(user=self.request.user).values('board')
+
         return Goal.objects.filter(
-            user=self.request.user
-        )
+            Q(user=self.request.user, status__in=[1, 2, 3]) |
+            # Цели, состоящие в досках к которым есть доступ
+            Q(category__in=GoalCategory.objects.filter(board__in=user_boards),
+              status__in=[1, 2, 3])
+            )
 
     def perform_destroy(self, instance):
         instance.status = 4
@@ -173,7 +183,7 @@ class GoalView(RetrieveUpdateDestroyAPIView):
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GoalCommentCreateView(CreateAPIView):
     model = GoalComment
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CommentCreatePermission]
     serializer_class = GoalCommentCreateSerializer
 
 
@@ -190,18 +200,26 @@ class GoalCommentListView(ListAPIView):
     ordering = ["text"]
 
     def get_queryset(self):
+        user_boards = BoardParticipant.objects.filter(user=self.request.user).values('board')
+
         return GoalComment.objects.filter(
-            user=self.request.user
-        )
+            Q(user=self.request.user) |
+            # Цели, состоящие в досках к которым есть доступ
+            Q(goal__in=Goal.objects.filter(category__in=GoalCategory.objects.filter(board__in=user_boards)))
+            )
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GoalCommentView(RetrieveUpdateDestroyAPIView):
     model = GoalComment
     serializer_class = GoalCommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CommentPermissions]
 
     def get_queryset(self):
+        user_boards = BoardParticipant.objects.filter(user=self.request.user).values('board')
+
         return GoalComment.objects.filter(
-            user=self.request.user
-        )
+            Q(user=self.request.user) |
+            # Цели, состоящие в досках к которым есть доступ
+            Q(goal__in=Goal.objects.filter(category__in=GoalCategory.objects.filter(board__in=user_boards)))
+            )

@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from goals.models import Board, BoardParticipant
+from goals.models import Board, BoardParticipant, Goal, GoalCategory
 
 
 class BoardPermissions(permissions.BasePermission):
@@ -50,3 +50,34 @@ class CategoryCreatePermission(permissions.BasePermission):
                 BoardParticipant.Role.writer
             ]
         ).exists()
+
+
+class CommentPermissions(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Check if the user is authenticated
+        if not request.user.is_authenticated:
+            return False
+
+        # Check if the request method is a safe method (GET, HEAD, OPTIONS)
+        if request.method in permissions.SAFE_METHODS:
+            # Users with any role can perform safe methods
+            return True
+
+        return obj.user == request.user
+
+
+class CommentCreatePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        # Check if the user is authenticated
+        if not request.user.is_authenticated:
+            return False
+
+        goal = Goal.objects.get(pk=request.data.get('goal'))
+        return BoardParticipant.objects.filter(
+            user=request.user, board=goal.category.board,
+            role__in=[
+                BoardParticipant.Role.owner,
+                BoardParticipant.Role.writer
+            ]
+        ).exists()
+
