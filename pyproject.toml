@@ -1,3 +1,6 @@
 [tool.pyright]
 venv = "venv"
-# include = ["bazito"]
+include = ["todolist"]
+executionEnvironments = [
+  { root = "todolist" }
+]

@@ -17,7 +17,7 @@ services:
     build:
       context: .
     # image: sergeipopov/hw34
-    command: ./todolist/manage.py runserver 0.0.0.0:8000
+    command: ./todolist/manage.py runserver 0.0.0.0:8000 
     tty: true
     ports: 
       - "8000:8000"
@@ -26,6 +26,19 @@ services:
     depends_on:
       - pg
       - migrate
+
+  botserver:
+    build:
+      context: .
+    # image: sergeipopov/hw34
+    command: ./todolist/manage.py runbot
+    tty: true
+    # ports: 
+    #   - "8000:8000"
+    volumes:
+      - .:/home/app/
+    depends_on:
+      - api
 
   pg:
     platform: linux/x86_64

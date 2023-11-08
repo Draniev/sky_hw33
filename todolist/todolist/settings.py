@@ -34,20 +34,15 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD')
 SECRET = os.getenv('SECRET')
 IS_DEBUG = os.getenv('DEBUG')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRET
 
-# SECURITY WARNING: don't run with debug turned on in production!
+TG_TOKEN = os.environ.get('TG_TOKEN')
+
 DEBUG = IS_DEBUG
-# DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 # APPEND_SLASH = False
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,6 +56,7 @@ INSTALLED_APPS = [
     'social_django',
     'core',
     'goals',
+    'bot',
 ]
 
 
