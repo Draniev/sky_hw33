@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from bot.models import TgUser
+from goals.models import Goal
 
 User = get_user_model()
 
@@ -28,3 +29,9 @@ class TgUserUpdSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class GoalList4TgSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Goal
+        fields = ['title']

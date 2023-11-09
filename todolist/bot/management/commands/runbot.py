@@ -2,12 +2,13 @@ from random import randint
 from typing import Tuple
 
 from bot.management.commands.dialogs import (CODE_DESCRIPTION, GREETINGS_LIST,
-                                             greetings)
+                                             greetings, BAD_COMMAND)
 from bot.models import TgUser
 from bot.tg.client import TgClient
 from bot.tg.dc import UpdateObj
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
+from bot.views import goals_list_4_tg
 
 from todolist.settings import TG_TOKEN
 
@@ -33,9 +34,8 @@ class Command(BaseCommand):
         return auth_code
 
     def upd_handler(self, tg_client: TgClient,
-                    upd_objects: list[UpdateObj]) -> Tuple[bool, int]:
+                    upd_objects: list[UpdateObj]) -> int:
         offset = 0
-        time_to_exit = False
 
         for upd_obj in upd_objects:
             offset = upd_obj.update_id + 1
@@ -60,23 +60,29 @@ class Command(BaseCommand):
                     tg_client.send_message(chat_id, f'ТВОЙ КОД: {auth_code}')
 
                 elif state == TgUser.State.confirmed:
+                    if message == '/goals':
+                        goals_list = goals_list_4_tg(tg_user)
+                        tg_client.send_message(chat_id, goals_list)
+                    elif message == '/create':
+                        pass
+                    else:
+                        tg_client.send_message(chat_id, BAD_COMMAND)
+
+                elif state == TgUser.State.create_1:
                     pass
 
-                else:
+                elif state == TgUser.State.create_2:
                     pass
 
-                self.stdout.write(self.style.SUCCESS(f'Msg: {message}'))
+                # if 'exit' in str(message):
+                #     time_to_exit = True
 
-                if 'exit' in str(message):
-                    time_to_exit = True
-
-        return time_to_exit, offset
+        return offset
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Начали!'))
+        self.stdout.write(self.style.SUCCESS('БОТ ЗАПУЩЕН!'))
         offset = 0
         polling = True
-        time_to_exit = False
         tg_client = TgClient(TG_TOKEN)
 
         while polling:
@@ -85,10 +91,10 @@ class Command(BaseCommand):
 
             # Вызываем выход ПОСЛЕ отправки запроса обновлений
             # Для подтверождения получения предыдущего
-            if time_to_exit:
-                self.stdout.write(self.style.SUCCESS('Попали на выход'))
-                polling = False
+            # if time_to_exit:
+            #     self.stdout.write(self.style.SUCCESS('Попали на выход'))
+            #     polling = False
 
-            time_to_exit, offset = self.upd_handler(tg_client, response.result)
+            offset = self.upd_handler(tg_client, response.result)
 
         self.stdout.write(self.style.SUCCESS('БОТ ВЫКЛЮЧЕН'))
