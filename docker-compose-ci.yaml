@@ -42,6 +42,28 @@ services:
       - pg
       - migrate
 
+  botserver:
+    build:
+      context: .
+    image: sergeipopov/hw34:$IMAGE_TAG
+    environment:
+      DB_NAME: $DB_NAME
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_HOST: $DB_HOST
+      DB_PORT: 5432
+      SECRET: $SECRET  
+      VK_APP_KEY: $VK_APP_KEY
+      VK_APP_ID: $VK_APP_ID
+      TG_TOKEN: $TG_TOKEN
+      DEBUG: True
+    tty: true
+    # ports: 
+    #   - "8000:8000"
+    command: ./todolist/manage.py runbot
+    depends_on:
+      - api
+
   pg:
     image: postgres:latest
     volumes:
