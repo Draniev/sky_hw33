@@ -28,6 +28,7 @@ jobs:
       VK_APP_ID: ${{ secrets.VK_APP_ID }}
       VK_APP_KEY: ${{ secrets.VK_APP_KEY }}
       IMAGE_TAG: ${{ github.run_id }}
+      TG_TOKEN: ${{ secrets.TG_TOKEN }}
     steps:
       - name: clone code
         uses: actions/checkout@v3
