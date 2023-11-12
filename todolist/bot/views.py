@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import  permissions
 from rest_framework.generics import UpdateAPIView
-from bot.serializers import GoalList4TgSerializer, TgUserUpdSerializer
+from bot.serializers import CategoryList4TgSerializer, GoalList4TgSerializer, TgUserUpdSerializer
 from bot.tg.client import TgClient
 from goals.models import BoardParticipant, Goal, GoalCategory
 from todolist.settings import TG_TOKEN
@@ -51,9 +51,41 @@ def goals_list_4_tg(tg_user: TgUser) -> str:
     )
 
     serializer = GoalList4TgSerializer(goals, many=True)
-    str = ", ".join([goal['title'] for goal in serializer.data])
+    if len(serializer.data):
+        str = ", ".join([goal['title'] for goal in serializer.data])
+        str = "Ваши цели:\n" + str
+    else:
+        str = "Не удалось найти ни одной цели. Может создадим первую?"
 
     return str
 
-        # serializer = self.get_serializer(queryset, many=True)
-        # return Response(serializer.data)
+
+def get_goal_categories(tg_user: TgUser) -> list[str]:
+    categoryes = GoalCategory.objects.filter(
+        Q(user=tg_user.user, is_deleted=False) |
+        # Категории, у которых доска, в которой пользователь состоит
+        Q(board__in=BoardParticipant.objects.filter(user=tg_user.user).values('board'),
+          is_deleted=False)
+    )
+
+    serializer = CategoryList4TgSerializer(categoryes, many=True)
+    return [category['title'] for category in serializer.data]
+
+
+def get_goal_category(tg_user: TgUser, category_name: str) -> GoalCategory:
+    categoryes = GoalCategory.objects.filter(
+        Q(user=tg_user.user, is_deleted=False) |
+        # Категории, у которых доска, в которой пользователь состоит
+        Q(board__in=BoardParticipant.objects.filter(user=tg_user.user).values('board'),
+          is_deleted=False)
+    )
+
+    return categoryes.get(title=category_name)
+
+
+def create_goal_from_tg(tg_user: TgUser, title: str):
+    goal = Goal(user=tg_user.user,
+                category=tg_user.create_goal_category,
+                title=title)
+    goal.save()
+    return goal

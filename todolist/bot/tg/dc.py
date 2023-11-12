@@ -65,7 +65,35 @@ class GetUpdatesResponse:
 @dataclass
 class SendMessageResponse:
     ok: bool
-    result: Message  # todo
+    result: Optional[Message]  # todo
+    Schema: ClassVar[Type[Schema]] = Schema
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+@dataclass
+class KeyboardButton:
+    text: str
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+@dataclass
+class ReplyKeyboardMarkup:
+    keyboard: list[list[KeyboardButton]]
+    is_persistent: bool = False
+    resize_keyboard: bool = True
+    Schema: ClassVar[Type[Schema]] = Schema
+
+    class Meta:
+        unknown = EXCLUDE
+
+
+@dataclass
+class ReplyKeyboardRemove:
+    remove_keyboard: bool = True
     Schema: ClassVar[Type[Schema]] = Schema
 
     class Meta:

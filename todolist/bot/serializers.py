@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from bot.models import TgUser
-from goals.models import Goal
+from goals.models import Goal, GoalCategory
 
 User = get_user_model()
 
@@ -34,4 +34,10 @@ class TgUserUpdSerializer(serializers.ModelSerializer):
 class GoalList4TgSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
+        fields = ['title']
+
+
+class CategoryList4TgSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GoalCategory
         fields = ['title']

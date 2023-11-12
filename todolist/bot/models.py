@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from goals.models import GoalCategory
 
 User = get_user_model()
 
@@ -24,3 +25,7 @@ class TgUser(models.Model):
                                              default=State.not_confirmed)
     verification_code = models.CharField(verbose_name='Код авторизации',
                                          max_length=255, null=True)
+    create_goal_category = models.ForeignKey(GoalCategory,
+                                             verbose_name="Категория для создания цели",
+                                             null=True,
+                                             on_delete=models.PROTECT)
