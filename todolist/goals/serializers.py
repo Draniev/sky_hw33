@@ -16,14 +16,14 @@ class GoalCategoryCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "created", "updated", "user")
         fields = "__all__"
 
-    def validate_board(self, value):
-        # Check if the board with the provided ID exists and is valid
-        try:
-            board = Board.objects.get(pk=value)
-        except Board.DoesNotExist:
-            raise serializers.ValidationError("Board does not exist.")
-        # You can add more custom validation here if needed.
-        return value
+    # def validate_board(self, value):
+    #     # Check if the board with the provided ID exists and is valid
+    #     try:
+    #         board = Board.objects.get(pk=value.id)
+    #     except Board.DoesNotExist:
+    #         raise serializers.ValidationError("Board does not exist.")
+    #     # You can add more custom validation here if needed.
+    #     return value
 
 
 class GoalCategorySerializer(serializers.ModelSerializer):
